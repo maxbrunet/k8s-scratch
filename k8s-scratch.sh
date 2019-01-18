@@ -230,13 +230,21 @@ systemctl restart docker
 ## https://kubernetes.io/docs/setup/scratch/#kubelet
 
 echo ">>> Configuring systemd service for kubelet..."
+# TODO: Update k8s.io scratch documentation
+#   - Disambiguate "Otherwise" bullet-point
+# TODO: Look into using Kubelet config file
+#   Flag --pod-manifest-path has been deprecated,
+#   This parameter should be set via the config file
+#   specified by the Kubelet's --config flag.
+#   See https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
+#   for more information.
 cat > /etc/systemd/system/kubelet.service <<EOF
 [Unit]
 Description=kubelet: The Kubernetes Node Agent
 Documentation=http://kubernetes.io/docs/
 
 [Service]
-ExecStart=/usr/local/bin/kubelet --kubeconfig="${KUBELET_CONFIG}"
+ExecStart=/usr/local/bin/kubelet --kubeconfig="${KUBELET_CONFIG}" --pod-manifest-path=/etc/kubernetes/manifests
 Restart=always
 StartLimitInterval=0
 RestartSec=10
