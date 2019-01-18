@@ -50,7 +50,7 @@ for bin in kubectl kube-proxy kubelet; do
 done
 
 ### https://kubernetes.io/docs/setup/scratch/#selecting-images
-ETCD_VERSION='v3.2.24'
+ETCD_VERSION='3.2.24'
 TAG="${K8S_VERSION}"
 HYPERKUBE_IMAGE="k8s.gcr.io/hyperkube:${TAG}"
 ETCD_IMAGE="k8s.gcr.io/etcd:${ETCD_VERSION}"
@@ -317,7 +317,8 @@ if [[ "${NODE_ID}" -eq 1 ]]; then
         "resources": {},
         "command": [
           "etcd",
-          "--name etcd-scratch",
+          "--name",
+          "etcd-scratch",
           "--listen-peer-urls=http://127.0.0.1:2380",
           "--initial-advertise-peer-urls=http://127.0.0.1:2380",
           "--advertise-client-urls=http://127.0.0.1:2379",
