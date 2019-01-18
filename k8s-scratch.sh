@@ -131,7 +131,9 @@ openssl x509 -req -in "${CLI_CSR}" -CA "${CA_CERT}" -CAkey "${CA_KEY}" \
   -CAcreateserial -out "${CLI_CERT}" -days 365 -sha256
 
 ### https://kubernetes.io/docs/setup/scratch/#preparing-credentials
-TOKENS_FILE="/var/lib/kube-apiserver/known_tokens.csv"
+# TODO: Update k8s.io scratch documentation
+#   - Make tokens file path conherent across the doc
+TOKENS_FILE="/srv/kubernetes/known_tokens.csv"
 CONTEXT_NAME="k8s-scratch"
 KUBE_PROXY_CONFIG="/var/lib/kube-proxy/kubeconfig"
 KUBELET_CONFIG="/var/lib/kubelet/kubeconfig"
@@ -391,6 +393,10 @@ EOF
   ## https://kubernetes.io/docs/setup/scratch/#apiserver-controller-manager-and-scheduler
 
   echo ">>> Creating apiserver pod manifest..."
+  # TODO: Update k8s.io scratch documentation
+  #   - Remove extra 'e' in "server.cert" => "server.crt" to be consistent with MASTER_CERT
+  #   - Suggest moving the token to /srv/kubernetes for consistency as well
+  #   - Remove `--token-auth-file` not mentioned in the doc
   cat > /etc/kubernetes/manifests/apiserver.manifest <<EOF
 {
   "kind": "Pod",
@@ -411,12 +417,11 @@ EOF
           "--address=127.0.0.1",
           "--service-cluster-ip-range=${SERVICE_CLUSTER_IP_RANGE}",
           "--etcd-servers=http://127.0.0.1:2379",
-          "--tls-cert-file=/srv/kubernetes/server.cert",
+          "--tls-cert-file=/srv/kubernetes/server.crt",
           "--tls-private-key-file=/srv/kubernetes/server.key",
           "--enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,Priority,ResourceQuota",
           "--client-ca-file=/srv/kubernetes/ca.crt",
-          "--token-auth-file=/srv/kubernetes/known_tokens.csv",
-          "--basic-auth-file=/srv/kubernetes/basic_auth.csv"
+          "--token-auth-file=/srv/kubernetes/known_tokens.csv"
         ],
         "ports": [
           {
