@@ -195,6 +195,11 @@ echo ">>> Enabling swap limit capabilities (effective at next reboot)..."
 sed -i -E 's/^(GRUB_CMDLINE_LINUX=).*/\1"cgroup_enable=memory swapaccount=1"/' /etc/default/grub
 update-grub
 
+if id vagrant >/dev/null 2>&1; then
+  echo '>>> Adding vagrant user to the docker group...'
+  usermod vagrant -g docker
+fi
+
 ### https://wiki.debian.org/BridgeNetworkConnections
 echo ">>> Installing bridge-utils..."
 apt-get install -y bridge-utils
