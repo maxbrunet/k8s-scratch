@@ -172,6 +172,7 @@ done
 CLUSTER_SUBNET='10.0.0.0/12'
 NODE_POD_CIDR="10.${NODE_ID}.0.0"
 NODE_BRIDGE_ADDR="10.${NODE_ID}.0.1"
+PRIVATE_INTERFACE="$(ip route get "${NODE_SUBNET}" | awk 'NR==1{ print $4 }')"
 ## https://kubernetes.io/docs/setup/scratch/#docker
 
 ### https://docs.docker.com/install/linux/docker-ce/ubuntu/ ###
@@ -201,10 +202,12 @@ iface cbr0 inet static
       address ${NODE_BRIDGE_ADDR}
       broadcast ${NODE_POD_CIDR}
       netmask 255.255.0.0
-      bridge_ports $(ip route get "${NODE_SUBNET}" | awk 'NR==1{ print $4 }')
+      bridge_ports ${PRIVATE_INTERFACE}
       bridge_stp off
       bridge_waitport 0
       bridge_fd 0
+      up route add -net ${CLUSTER_SUBNET} dev ${PRIVATE_INTERFACE}
+      down route del -net ${CLUSTER_SUBNET} dev ${PRIVATE_INTERFACE}
 EOF
 echo ">>> Reloading cbr0 configuration..."
 ifdown cbr0 && ifup cbr0
