@@ -594,4 +594,47 @@ echo ">>> Starting kubelet and kube-proxy services..."
 systemctl start kubelet
 systemctl start kube-proxy
 
+echo '>>> Waiting a minute for cluster to come up...'
+sleep 60
+echo '>>> Checking apiserver container has been created...'
+docker ps | grep apiserver
+
+# https://kubernetes.io/docs/setup/scratch/#troubleshooting
+## https://kubernetes.io/docs/setup/scratch/#running-validate-cluster
+
+echo '>>> Extracting cluster and test scripts from K8s source archive...'
+tar xf "${LOCAL_TMP}/kubernetes/kubernetes-src.tar.gz" -C "${LOCAL_TMP}/kubernetes" cluster/ hack/
+echo '>>> Running validate-cluster.sh...'
+KUBECTL_PATH="$(command -v kubectl)" NUM_NODES=1 KUBERNETES_PROVIDER=local \
+  "${LOCAL_TMP}/kubernetes/cluster/validate-cluster.sh"
+
+## https://kubernetes.io/docs/setup/scratch/#inspect-pods-and-services
+
+echo 'Get a first look at what has been created in the cluster...'
+kubectl get all --all-namespaces
+
+## https://kubernetes.io/docs/setup/scratch/#try-examples
+
+echo '>>> Testing a simple deployment...'
+kubectl create -f https://kubernetes.io/examples/application/deployment.yaml
+
+## https://kubernetes.io/docs/setup/scratch/#running-the-conformance-test
+
+### FIXME: Fails on docker version and requires a TTY
+# echo '>>> Extracting conformance test scripts from K8s source archive...'
+# tar xf "${LOCAL_TMP}/kubernetes/kubernetes-src.tar.gz" -C "${LOCAL_TMP}/kubernetes" test/e2e_node/conformance/run_test.sh
+# echo '>>> Stopping kubelet to run the conformance test...'
+# systemctl stop kubelet
+# echo '>>> Running conformance test...'
+# # Env variables are a workaround for:
+# # https://github.com/kubernetes/kubernetes/issues/67588
+# # Fixed in v1.14.0
+# KUBELET_KUBECONFIG_DIR='/var/lib/kubelet' \
+#   KUBELET_KUBECONFIG="/var/lib/kubelet/kubelet.kubeconfig" \
+#   "${LOCAL_TMP}/kubernetes/test/e2e_node/conformance/run_test.sh"
+# echo '>>> Restarting kubelet...'
+# systemctl start kubelet
+
+## https://kubernetes.io/docs/setup/scratch/#networking-1
+
 exit 0
