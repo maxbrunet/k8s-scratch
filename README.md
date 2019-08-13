@@ -31,10 +31,10 @@ vagrant ssh
 ```
 
 [k8s.io]: https://k8s.io
-[kubeadm]: https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/
+[kubeadm]: https://v1-12.docs.kubernetes.io/docs/setup/independent/create-cluster-kubeadm/
 [kops]: https://github.com/kubernetes/kops
 [kubespray]: https://github.com/kubernetes-sigs/kubespray
 [vagrant]: https://www.vagrantup.com
 [virtualbox]: https://www.virtualbox.org
-[scratch]: https://kubernetes.io/docs/setup/scratch/
+[scratch]: https://v1-12.docs.kubernetes.io/docs/setup/scratch/
 [docs.k8s.io]: https://docs.k8s.io
