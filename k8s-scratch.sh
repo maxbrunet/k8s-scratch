@@ -13,14 +13,14 @@ else
   LOCAL_TMP='/tmp'
 fi
 
-# https://kubernetes.io/docs/setup/scratch/#designing-and-preparing
+# https://v1-12.docs.kubernetes.io/docs/setup/scratch/#designing-and-preparing
 
-## https://kubernetes.io/docs/setup/scratch/#learning
-## https://kubernetes.io/docs/setup/scratch/#cloud-provider
-# https://kubernetes.io/docs/setup/scratch/#nodes
-## https://kubernetes.io/docs/setup/scratch/#network
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#learning
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#cloud-provider
+# https://v1-12.docs.kubernetes.io/docs/setup/scratch/#nodes
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#network
 
-### https://kubernetes.io/docs/setup/scratch/#network-connectivity
+### https://v1-12.docs.kubernetes.io/docs/setup/scratch/#network-connectivity
 SERVICE_CLUSTER_IP_RANGE='10.0.0.0/16'
 MASTER_IP="${NODE_SUBNET}.101"
 
@@ -28,13 +28,13 @@ echo '>>> Enabling IPv4 forwarding...'
 echo 'net.ipv4.ip_forward = 1' > /etc/sysctl.d/80-ipv4-forward.conf
 sysctl --system >/dev/null
 
-### https://kubernetes.io/docs/setup/scratch/#network-policy
+### https://v1-12.docs.kubernetes.io/docs/setup/scratch/#network-policy
 
-## https://kubernetes.io/docs/setup/scratch/#cluster-naming
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#cluster-naming
 CLUSTER_NAME='k8s-scratch.local'
 
-## https://kubernetes.io/docs/setup/scratch/#software-binaries
-### https://kubernetes.io/docs/setup/scratch/#downloading-and-extracting-kubernetes-binaries
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#software-binaries
+### https://v1-12.docs.kubernetes.io/docs/setup/scratch/#downloading-and-extracting-kubernetes-binaries
 
 if [[ ! -d "${LOCAL_TMP}/kubernetes" ]]; then
   echo '>>> Downloading Kubernetes server binaries...'
@@ -49,14 +49,14 @@ for bin in kubectl kube-proxy kubelet; do
   fi
 done
 
-### https://kubernetes.io/docs/setup/scratch/#selecting-images
+### https://v1-12.docs.kubernetes.io/docs/setup/scratch/#selecting-images
 ETCD_VERSION='3.2.24'
 TAG="${K8S_VERSION}"
 HYPERKUBE_IMAGE="k8s.gcr.io/hyperkube:${TAG}"
 ETCD_IMAGE="k8s.gcr.io/etcd:${ETCD_VERSION}"
 
-## https://kubernetes.io/docs/setup/scratch/#security-models
-### https://kubernetes.io/docs/setup/scratch/#preparing-certs
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#security-models
+### https://v1-12.docs.kubernetes.io/docs/setup/scratch/#preparing-certs
 
 K8S_DIR="/srv/kubernetes"
 CA_CERT="${K8S_DIR}/ca.crt"
@@ -69,7 +69,7 @@ CLI_CERT="${K8S_DIR}/admin.crt"
 CLI_KEY="${K8S_DIR}/admin.key"
 CLI_CSR="${K8S_DIR}/admin.csr"
 
-#### https://kubernetes.io/docs/concepts/cluster-administration/certificates/#openssl
+#### https://v1-12.docs.kubernetes.io/docs/concepts/cluster-administration/certificates/#openssl
 mkdir -p "${LOCAL_TMP}${K8S_DIR}" "${K8S_DIR}"
 
 if [[ ! -f "${CA_KEY}" ]]; then
@@ -130,7 +130,7 @@ openssl req -new -sha256 -key "${CLI_KEY}" \
 openssl x509 -req -in "${CLI_CSR}" -CA "${CA_CERT}" -CAkey "${CA_KEY}" \
   -CAcreateserial -out "${CLI_CERT}" -days 365 -sha256
 
-### https://kubernetes.io/docs/setup/scratch/#preparing-credentials
+### https://v1-12.docs.kubernetes.io/docs/setup/scratch/#preparing-credentials
 # TODO: Update k8s.io scratch documentation
 #   - Make tokens file path conherent across the doc
 TOKENS_FILE="/srv/kubernetes/known_tokens.csv"
@@ -170,12 +170,12 @@ for config in "${HOME}/.kube/config" "${KUBE_PROXY_CONFIG}" "${KUBELET_CONFIG}";
   KUBECONFIG="${config}" kubectl config use-context "${CONTEXT_NAME}"
 done
 
-# https://kubernetes.io/docs/setup/scratch/#configuring-and-installing-base-software-on-nodes
+# https://v1-12.docs.kubernetes.io/docs/setup/scratch/#configuring-and-installing-base-software-on-nodes
 CLUSTER_SUBNET='10.0.0.0/12'
 NODE_POD_CIDR="10.${NODE_ID}.0.0"
 NODE_BRIDGE_ADDR="10.${NODE_ID}.0.1"
 PRIVATE_INTERFACE="$(ip route get "${NODE_SUBNET}" | awk 'NR==1{ print $4 }')"
-## https://kubernetes.io/docs/setup/scratch/#docker
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#docker
 
 ### https://docs.docker.com/install/linux/docker-ce/ubuntu/ ###
 
@@ -233,8 +233,8 @@ grep -q 'DOCKER_NOFILE=1000000' /etc/default/docker || echo 'DOCKER_NOFILE=10000
 echo ">>> Restarting Docker..."
 systemctl restart docker
 
-## https://kubernetes.io/docs/setup/scratch/#rkt ## skip
-## https://kubernetes.io/docs/setup/scratch/#kubelet
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#rkt ## skip
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#kubelet
 
 echo ">>> Configuring systemd service for kubelet..."
 # TODO: Update k8s.io scratch documentation
@@ -243,7 +243,7 @@ echo ">>> Configuring systemd service for kubelet..."
 #   Flag --pod-manifest-path has been deprecated,
 #   This parameter should be set via the config file
 #   specified by the Kubelet's --config flag.
-#   See https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
+#   See https://v1-12.docs.kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/
 #   for more information.
 cat > /etc/systemd/system/kubelet.service <<EOF
 [Unit]
@@ -260,7 +260,7 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-## https://kubernetes.io/docs/setup/scratch/#kube-proxy
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#kube-proxy
 
 echo ">>> Installing kube-proxy dependencies..."
 apt-get install -y conntrack
@@ -281,7 +281,7 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-## https://kubernetes.io/docs/setup/scratch/#networking
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#networking
 
 echo ">>> Enabling NAT translation for Pods IPs (non-cluster-subnet IPs)..."
 iptables -t nat -A POSTROUTING ! -d "${CLUSTER_SUBNET}" \
@@ -290,15 +290,15 @@ echo ">>> Configuring netfilter rules persistence..."
 apt-get install -y netfilter-persistent
 sudo netfilter-persistent save
 
-## https://kubernetes.io/docs/setup/scratch/#other
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#other
 
-# https://kubernetes.io/docs/setup/scratch/#bootstrapping-the-cluster
+# https://v1-12.docs.kubernetes.io/docs/setup/scratch/#bootstrapping-the-cluster
 
 if [[ "${NODE_ID}" -eq 1 ]]; then
 
   mkdir -p /etc/kubernetes/manifests
 
-  ## https://kubernetes.io/docs/setup/scratch/#etcd
+  ## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#etcd
 
   echo ">>> Creating etcd pod manifest..."
   cat > /etc/kubernetes/manifests/etcd.manifest <<EOF
@@ -396,7 +396,7 @@ if [[ "${NODE_ID}" -eq 1 ]]; then
 }
 EOF
 
-  ## https://kubernetes.io/docs/setup/scratch/#apiserver-controller-manager-and-scheduler
+  ## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#apiserver-controller-manager-and-scheduler
 
   echo ">>> Creating apiserver pod manifest..."
   # TODO: Update k8s.io scratch documentation
@@ -583,7 +583,7 @@ EOF
 
 fi
 
-## https://kubernetes.io/docs/setup/scratch/#starting-cluster-services
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#starting-cluster-services
 
 echo ">>> Reloading systemd configuration..."
 systemctl daemon-reload
@@ -599,8 +599,8 @@ sleep 60
 echo '>>> Checking apiserver container has been created...'
 docker ps | grep apiserver
 
-# https://kubernetes.io/docs/setup/scratch/#troubleshooting
-## https://kubernetes.io/docs/setup/scratch/#running-validate-cluster
+# https://v1-12.docs.kubernetes.io/docs/setup/scratch/#troubleshooting
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#running-validate-cluster
 
 echo '>>> Extracting cluster and test scripts from K8s source archive...'
 tar xf "${LOCAL_TMP}/kubernetes/kubernetes-src.tar.gz" -C "${LOCAL_TMP}/kubernetes" cluster/ hack/
@@ -608,17 +608,17 @@ echo '>>> Running validate-cluster.sh...'
 KUBECTL_PATH="$(command -v kubectl)" NUM_NODES=1 KUBERNETES_PROVIDER=local \
   "${LOCAL_TMP}/kubernetes/cluster/validate-cluster.sh"
 
-## https://kubernetes.io/docs/setup/scratch/#inspect-pods-and-services
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#inspect-pods-and-services
 
 echo 'Get a first look at what has been created in the cluster...'
 kubectl get all --all-namespaces
 
-## https://kubernetes.io/docs/setup/scratch/#try-examples
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#try-examples
 
 echo '>>> Testing a simple deployment...'
-kubectl create -f https://kubernetes.io/examples/application/deployment.yaml
+kubectl create -f https://v1-12.docs.kubernetes.io/examples/application/deployment.yaml
 
-## https://kubernetes.io/docs/setup/scratch/#running-the-conformance-test
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#running-the-conformance-test
 
 ### FIXME: Fails on docker version and requires a TTY
 # echo '>>> Extracting conformance test scripts from K8s source archive...'
@@ -635,6 +635,6 @@ kubectl create -f https://kubernetes.io/examples/application/deployment.yaml
 # echo '>>> Restarting kubelet...'
 # systemctl start kubelet
 
-## https://kubernetes.io/docs/setup/scratch/#networking-1
+## https://v1-12.docs.kubernetes.io/docs/setup/scratch/#networking-1
 
 exit 0
